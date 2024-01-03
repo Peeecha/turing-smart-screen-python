@@ -375,11 +375,33 @@ class Disk(sensors.Disk):
 
     @staticmethod
     def disk_used() -> int:  # In bytes
-        return psutil.disk_usage("/").used
+        used = 0
+        for part in psutil.disk_partitions(all=False):
+            if os.name == 'nt':
+                if 'cdrom' in part.opts or part.fstype == '':
+                    # skip cd-rom drives with no disk in it; they may raise
+                    # ENOENT, pop-up a Windows GUI error for a non-ready
+                    # partition or just hang.
+                    continue
+            usage = psutil.disk_usage(part.mountpoint)
+            used += usage.used
+
+        return used
 
     @staticmethod
     def disk_free() -> int:  # In bytes
-        return psutil.disk_usage("/").free
+        free = 0
+        for part in psutil.disk_partitions(all=False):
+            if os.name == 'nt':
+                if 'cdrom' in part.opts or part.fstype == '':
+                    # skip cd-rom drives with no disk in it; they may raise
+                    # ENOENT, pop-up a Windows GUI error for a non-ready
+                    # partition or just hang.
+                    continue
+            usage = psutil.disk_usage(part.mountpoint)
+            free += usage.free
+            
+        return free
 
 
 class Net(sensors.Net):
