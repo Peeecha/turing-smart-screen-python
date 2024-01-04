@@ -27,6 +27,7 @@ import library.sensors.sensors as sensors
 # Define here global static values that will be applied to all sensors of the same type
 PERCENTAGE_SENSOR_VALUE = 50.0
 TEMPERATURE_SENSOR_VALUE = 67.3
+POWER_SENSOR_VALUE = 25
 
 # Define other sensors
 CPU_FREQ_MHZ = 2400.0
@@ -57,7 +58,11 @@ class Cpu(sensors.Cpu):
     @staticmethod
     def temperature() -> float:
         return TEMPERATURE_SENSOR_VALUE
-
+        
+    @staticmethod
+    def power() -> float:
+        return POWER_SENSOR_VALUE
+        
 
 class Gpu(sensors.Gpu):
     @staticmethod

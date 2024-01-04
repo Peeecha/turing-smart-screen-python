@@ -92,7 +92,7 @@ model_and_size_to_revision_map = {
     (SIMULATED_MODEL, SIZE_5_INCH): 'SIMU5',
 }
 hw_lib_map = {"AUTO": "Automatic", "LHM": "LibreHardwareMonitor (admin.)", "PYTHON": "Python libraries",
-              "STUB": "Fake random data", "STATIC": "Fake static data"}
+              "STUB": "Fake random data", "STATIC": "Fake static data", "HWINFO": "HWiNFO Shared Memory"}
 reverse_map = {False: "classic", True: "reverse"}
 
 themes_dir = 'res/themes'

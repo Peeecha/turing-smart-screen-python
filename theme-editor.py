@@ -105,6 +105,7 @@ def refresh_theme():
     stats.CPU.frequency()
     stats.CPU.load()
     stats.CPU.temperature()
+    stats.CPU.power()
     stats.Gpu.stats()
     stats.Memory.stats()
     stats.Disk.stats()

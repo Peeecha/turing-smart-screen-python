@@ -213,6 +213,8 @@ if __name__ == "__main__":
         scheduler.CPUFrequency()
     if config.THEME_DATA['STATS']['CPU']['LOAD']:    
         scheduler.CPULoad()
+    if config.THEME_DATA['STATS']['CPU']['POWER']:
+        scheduler.CPUPower()
     if config.THEME_DATA['STATS']['CPU']['TEMPERATURE'] and stats.CPU.is_temperature_available():
         scheduler.CPUTemperature()
     else:

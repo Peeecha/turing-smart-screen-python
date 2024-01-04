@@ -48,7 +48,11 @@ class Cpu(ABC):
     @abstractmethod
     def temperature() -> float:
         pass
-
+        
+    @staticmethod
+    @abstractmethod
+    def power() -> float:
+        pass
 
 class Gpu(ABC):
     @staticmethod

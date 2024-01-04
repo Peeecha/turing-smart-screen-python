@@ -108,6 +108,14 @@ def CPUTemperature():
     """ Refresh the CPU Temperature """
     # logger.debug("Refresh CPU Temperature")
     stats.CPU.temperature()
+    
+    
+@async_job("CPU_Load")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS']['CPU']['LOAD'].get("INTERVAL", None)).total_seconds())
+def CPUPower():
+    """ Refresh the CPU Power draw """
+    # logger.debug("Refresh CPU Power draw")
+    stats.CPU.power()
 
 
 @async_job("GPU_Stats")

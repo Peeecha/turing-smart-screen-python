@@ -29,6 +29,10 @@ STATS:
       INTERVAL: 5
       TEXT:
         SHOW: False
+    POWER:
+      TEXT:
+        SHOW: False
+        SHOW_UNIT: False
   GPU:
     INTERVAL: 1
     PERCENTAGE:

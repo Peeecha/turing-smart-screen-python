@@ -38,6 +38,8 @@ ETH_CARD = config.CONFIG_DATA["config"]["ETH"]
 WLO_CARD = config.CONFIG_DATA["config"]["WLO"]
 HW_SENSORS = config.CONFIG_DATA["config"]["HW_SENSORS"]
 
+cached_power_load = -1
+
 if HW_SENSORS == "PYTHON":
     if platform.system() == 'Windows':
         logger.warning("It is recommended to use LibreHardwareMonitor integration for Windows instead of Python "
@@ -52,6 +54,8 @@ elif HW_SENSORS == "LHM":
             sys.exit(0)
         except:
             os._exit(0)
+elif HW_SENSORS == "HWINFO":
+    import library.sensors.sensors_hwinfo as sensors
 elif HW_SENSORS == "STUB":
     logger.warning("Stub sensors, not real HW sensors")
     import library.sensors.sensors_stub_random as sensors
@@ -227,6 +231,32 @@ class CPU:
             min_size=3,
             unit="°C"
         )
+
+    @staticmethod
+    def power():
+        global cached_power_load
+        
+        sensor_value = sensors.Cpu.power()
+        if sensor_value is None:
+            sensor_value = -1
+            
+        power_load = int(sensor_value)
+        if HW_SENSORS == "STATIC" or power_load != cached_power_load:
+            display_themed_radial_bar(
+                theme_data=config.THEME_DATA['STATS']['CPU']['POWER']['RADIAL'],
+                value=power_load,
+                min_size=3,
+                unit="W"
+            )
+            
+            display_themed_value(
+                theme_data=config.THEME_DATA['STATS']['CPU']['POWER']['TEXT'],
+                value=power_load,
+                min_size=3,
+                unit="W"
+            )
+            cached_power_load = power_load
+
 
 
 def display_gpu_stats(load, memory_percentage, memory_used_mb, temperature, fps):
