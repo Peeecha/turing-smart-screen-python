@@ -65,6 +65,15 @@ import library.scheduler as scheduler
 from library.display import display
 import library.config as config
 
+
+# Set your desired window title
+desired_title = "LCD Monitor"
+# Get the handle of the console window
+hwnd = win32gui.GetForegroundWindow()
+# Set the window title
+win32gui.SetWindowText(hwnd, desired_title)
+
+
 if __name__ == "__main__":
 
     # Apply system locale to this program
