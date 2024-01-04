@@ -37,6 +37,9 @@ GPU_MEM_TOTAL_SIZE_GB = 32
 NETWORK_SPEED_BYTES = 1061000000
 GPU_FPS = 120
 
+WEATHER_KIND = '🌦' # ☁️🌫🌧❄️🌦🌧⛅️☀️🌩⛈✨
+WEATHER_TEMP = 23
+WEATHER_DESC = 'PARTLY\nCLOUDY'
 
 class Cpu(sensors.Cpu):
     @staticmethod
@@ -116,3 +119,10 @@ class Net(sensors.Net):
     def stats(if_name, interval) -> Tuple[
         int, int, int, int]:  # up rate (B/s), uploaded (B), dl rate (B/s), downloaded (B)
         return NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES
+
+
+class Forecast(sensors.Forecast):
+    @staticmethod
+    def request(city, locale, callback): 
+        weather_data = WEATHER_KIND, WEATHER_TEMP, WEATHER_DESC
+        callback(weather_data)

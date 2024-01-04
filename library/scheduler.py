@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import sched
 import threading
 import time
@@ -29,6 +30,14 @@ import library.stats as stats
 
 STOPPING = False
 
+# Function to run the event loop for a specific thread
+def event_loop_thread():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+
+# Dictionary to map thread names to event loops
+thread_loops = {}
 
 def async_job(threadname=None):
     """ wrapper to handle asynchronous threads """
@@ -40,7 +49,12 @@ def async_job(threadname=None):
         def async_func(*args, **kwargs):
             """ create an asynchronous function to wrap around our thread """
             func_hl = threading.Thread(target=func, name=threadname, args=args, kwargs=kwargs)
+            # Set up an event loop for the thread if not already present
+            if threadname not in thread_loops:
+                thread_loops[threadname] = threading.Thread(target=event_loop_thread, name=f"{threadname}_Loop")
+                thread_loops[threadname].start()
             func_hl.start()
+
             return func_hl
 
         return async_func
@@ -159,6 +173,12 @@ def DateStats():
 def CustomStats():
     # print("Refresh custom stats")
     stats.Custom.stats()
+
+
+@async_job("Weather_Stats")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS']['WEATHER'].get("INTERVAL", None)).total_seconds())
+def WeatherStats():
+    stats.Weather.stats()
 
 
 @async_job("Queue_Handler")

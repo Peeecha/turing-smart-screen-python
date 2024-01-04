@@ -36,6 +36,7 @@ if sys.version_info < MIN_PYTHON:
 try:
     import tkinter.ttk as ttk
     from tkinter import *
+    import tkinter as tk
 except:
     print(
         "[ERROR] Tkinter dependency not installed. Please follow troubleshooting page: https://github.com/mathoudebine/turing-smart-screen-python/wiki/Troubleshooting#all-os-tkinter-dependency-not-installed")
@@ -222,6 +223,14 @@ class TuringConfigWindow:
         self.wl_label.place(x=320, y=420)
         self.wl_cb = ttk.Combobox(self.window, values=get_net_if(), state='readonly')
         self.wl_cb.place(x=500, y=415, width=250)
+        
+        
+        self.cb_weather_var = tk.IntVar()
+
+        self.weather_label = ttk.Label(self.window, text='Weather monitor')
+        self.weather_label.place(x=320, y=460)
+        self.weather_cb = ttk.Checkbutton(self.window, text='Enabled', variable=self.cb_weather_var)
+        self.weather_cb.place(x=500, y=455, width=250)
 
         self.lhm_admin_warning = ttk.Label(self.window,
                                            text="❌ Restart as admin. or select another Hardware monitoring",
@@ -329,6 +338,11 @@ class TuringConfigWindow:
             self.brightness_slider.set(int(self.config['display']['BRIGHTNESS']))
         except:
             self.brightness_slider.set(50)
+            
+        try:
+            self.cb_weather_var.set(self.config['config']['WEATHER'])
+        except:
+            self.cb_weather_var.set(0)
 
         # Reload content on screen
         self.on_model_change()
@@ -355,6 +369,8 @@ class TuringConfigWindow:
         self.config['display']['REVISION'] = model_and_size_to_revision_map[(self.model_cb.get(), self.size_cb.get())]
         self.config['display']['DISPLAY_REVERSE'] = [k for k, v in reverse_map.items() if v == self.orient_cb.get()][0]
         self.config['display']['BRIGHTNESS'] = int(self.brightness_slider.get())
+        
+        self.config['config']['WEATHER'] = self.cb_weather_var.get()
 
         with open("config.yaml", "w", encoding='utf-8') as file:
             ruamel.yaml.YAML().dump(self.config, file)

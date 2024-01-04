@@ -29,6 +29,7 @@ import sys
 
 import babel.dates
 from psutil._common import bytes2human
+from typing import Tuple
 
 import library.config as config
 from library.display import display
@@ -37,6 +38,7 @@ from library.log import logger
 ETH_CARD = config.CONFIG_DATA["config"]["ETH"]
 WLO_CARD = config.CONFIG_DATA["config"]["WLO"]
 HW_SENSORS = config.CONFIG_DATA["config"]["HW_SENSORS"]
+WEATHER = config.CONFIG_DATA["config"]["WEATHER"]
 
 cached_power_load = -1
 
@@ -76,6 +78,11 @@ else:
 
 import library.sensors.sensors_custom as sensors_custom
 
+if WEATHER == 1:
+    if HW_SENSORS == "STATIC":
+        import library.sensors.sensors_stub_static as weather
+    else:
+        import library.sensors.sensors_weather as weather
 
 def get_theme_file_path(name):
     if name:
@@ -347,7 +354,69 @@ def display_gpu_stats(load, memory_percentage, memory_used_mb, temperature, fps)
         min_size=4,
         unit=" FPS"
     )
+    
 
+# parse weather description to two lines and X max chars per line (just a custom preference I wanted)   
+def parse_weather_desc_input_string(input_string, max_char):
+    words = input_string.split()
+    lines = ['']  # List to store lines, initially with an empty line
+    current_line = 0  # Index of the current line
+
+    for word in words:
+        # Check if adding the word and a space exceeds max characters for the current line
+        if len(lines[current_line]) + len(word) <= max_char:
+            # Add the word to the current line
+            lines[current_line] += word + ' '
+        else:
+            if current_line == 2:
+                lines[-1] += word + ' '
+            else:
+                # Move to the next line if the word doesn't fit in the current line
+                current_line += 1
+                lines.append(word + ' ')
+    
+    for i in range(len(lines)):
+        fill_count = min(len(lines[i]), max_char - len(lines[i]))
+        lines[i] = lines[i] + ' ' * fill_count
+        lines[i] = lines[i].strip()[:max_char]
+        
+    return '\n'.join(lines)
+    
+    
+def display_weather_stats(kind, temp, desc):
+    theme_weather_data = config.THEME_DATA['STATS']['WEATHER']
+    
+    weather_kind_data = theme_weather_data['KIND']['TEXT']
+    weather_temperature_data = theme_weather_data['TEMPERATURE']['TEXT']
+    weather_desc_data = theme_weather_data['DESC']['TEXT']
+    
+    if weather_desc_data.get('TWO_LINES') == True:
+        desc = parse_weather_desc_input_string(desc, weather_desc_data.get('MAX_CHAR_PER_LINE', 10))
+   
+    display_themed_value(
+        theme_data=weather_kind_data,
+        value=kind,
+        min_size=3,
+        unit="°C"
+    )
+    
+    if isinstance(temp, int) or len(temp) > 0:
+        display_themed_value(
+            theme_data=weather_temperature_data,
+            value=temp,
+            min_size=3,
+            unit="°C"
+        )
+    
+    if len(desc) > 0:
+        display_themed_value(
+            theme_data=weather_desc_data,
+            value=desc,
+            min_size=3,
+            unit="°C"
+        )
+
+    
 
 class Gpu:
     @staticmethod
@@ -564,3 +633,19 @@ class Custom:
                         value=numeric_value,
                         custom_text=string_value
                     )
+
+
+
+class Weather:
+    @staticmethod
+    def request_result(result: Tuple[str, str, str]):      
+        kind, temp, desc = result
+        display_weather_stats(kind, temp, desc)
+        
+    @staticmethod
+    def stats():
+        city = config.THEME_DATA['STATS']['WEATHER'].get("CITY", 'London')
+        locale = config.THEME_DATA['STATS']['WEATHER'].get("LOCALE", 'ENGLISH')
+        units = config.THEME_DATA['STATS']['WEATHER'].get("UNITS", 'METRIC')
+        
+        weather.Forecast.request(city, locale, Weather.request_result)

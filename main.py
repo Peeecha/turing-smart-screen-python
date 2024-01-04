@@ -231,6 +231,8 @@ if __name__ == "__main__":
         scheduler.DateStats()
     if config.THEME_DATA['STATS']['CUSTOM']:
         scheduler.CustomStats()
+    if config.THEME_DATA['STATS']['WEATHER']:
+        scheduler.WeatherStats()
     scheduler.QueueHandler()
 
     if tray_icon and platform.system() == "Darwin":  # macOS-specific

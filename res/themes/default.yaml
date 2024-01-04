@@ -141,3 +141,20 @@ STATS:
         SHOW: False
   CUSTOM:
     INTERVAL: 3
+  WEATHER:
+    INTERVAL: 1200
+    CITY: London
+    LOCALE: ENGLISH
+    UNITS: METRIC
+    KIND:
+      TEXT:
+        SHOW: False
+        SHOW_UNIT: False
+    TEMPERATURE:
+      TEXT:
+        SHOW: False
+        SHOW_UNIT: False
+    DESC:
+      TEXT:
+        SHOW: False
+        SHOW_UNIT: False
