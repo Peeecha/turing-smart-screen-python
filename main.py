@@ -63,6 +63,7 @@ except:
 from library.log import logger
 import library.scheduler as scheduler
 from library.display import display
+import library.config as config
 
 if __name__ == "__main__":
 
@@ -197,20 +198,28 @@ if __name__ == "__main__":
     # Run our jobs that update data
     import library.stats as stats
 
-    scheduler.CPUPercentage()
-    scheduler.CPUFrequency()
-    scheduler.CPULoad()
-    if stats.CPU.is_temperature_available():
+    if config.THEME_DATA['STATS']['CPU']['PERCENTAGE']:
+        scheduler.CPUPercentage()
+    if config.THEME_DATA['STATS']['CPU']['FREQUENCY']:
+        scheduler.CPUFrequency()
+    if config.THEME_DATA['STATS']['CPU']['LOAD']:    
+        scheduler.CPULoad()
+    if config.THEME_DATA['STATS']['CPU']['TEMPERATURE'] and stats.CPU.is_temperature_available():
         scheduler.CPUTemperature()
     else:
         logger.warning("Your CPU temperature is not supported yet")
-    if stats.Gpu.is_available():
+    if config.THEME_DATA['STATS']['GPU'] and stats.Gpu.is_available():
         scheduler.GpuStats()
-    scheduler.MemoryStats()
-    scheduler.DiskStats()
-    scheduler.NetStats()
-    scheduler.DateStats()
-    scheduler.CustomStats()
+    if config.THEME_DATA['STATS']['MEMORY']:
+        scheduler.MemoryStats()
+    if config.THEME_DATA['STATS']['DISK']:
+        scheduler.DiskStats()
+    if config.THEME_DATA['STATS']['NET']:
+        scheduler.NetStats()   
+    if config.THEME_DATA['STATS']['DATE']:
+        scheduler.DateStats()
+    if config.THEME_DATA['STATS']['CUSTOM']:
+        scheduler.CustomStats()
     scheduler.QueueHandler()
 
     if tray_icon and platform.system() == "Darwin":  # macOS-specific
