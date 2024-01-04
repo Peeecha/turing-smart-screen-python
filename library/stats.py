@@ -584,9 +584,11 @@ class Date:
         date_theme_data = config.THEME_DATA['STATS']['DATE']
         day_theme_data = date_theme_data['DAY']['TEXT']
         date_format = day_theme_data.get("FORMAT", 'medium')
+        date_locale = day_theme_data.get("LOCALE", lc_time)
+
         display_themed_value(
             theme_data=day_theme_data,
-            value=f"{babel.dates.format_date(date_now, format=date_format, locale=lc_time)}"
+            value=f"{babel.dates.format_date(date_now, format=date_format, locale=date_locale)}"
         )
 
         hour_theme_data = date_theme_data['HOUR']['TEXT']
