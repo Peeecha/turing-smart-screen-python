@@ -17,11 +17,18 @@ import library.sensors.sensors as sensors
 from library.log import logger
 
 
-memory = shared_memory.SharedMemory('Global\\HWiNFO_SENS_SM2')
+memory = None
 decoded_memory_data = []
 
 def refresh_data_from_memory():
     global decoded_memory_data, memory
+    
+    if memory is None:
+        try:
+            memory = shared_memory.SharedMemory('Global\\HWiNFO_SENS_SM2')
+        except FileNotFoundError as e:
+            memory = None
+            return
     
     decoded_memory_data.clear()
  
@@ -104,7 +111,7 @@ def get_sensor_value(sensor_name) -> float:
         if data['szLabelOrig'].startswith(sensor_name):
             return float(data['Value'])
         
-    return math.nan
+    return -1
     
     
 def get_sensor_value_additive(sensor_name) -> float:
@@ -165,21 +172,27 @@ class Cpu(sensors.Cpu):
 
     @staticmethod
     def power() -> float:
-        return get_sensor_value('CPU Package Power')
+        draw = get_sensor_value('CPU Package Power')
+        if math.isnan(draw):
+            draw = -1
+        return draw
 
 class Gpu(sensors.Gpu):
     @classmethod
     def stats(cls) -> Tuple[float, float, float, float]:  # load (%) / used mem (%) / used mem (Mb) / temp (°C)
         load = get_sensor_value('GPU Utilization')
-        used_mem = get_sensor_value('GPU Memory Usage')
-        total_mem = math.nan
+        used_mem = get_sensor_value('GPU D3D Memory Dedicated')
+        total_mem = 6144 # static value (no sensor in hwinfo)
         temp = get_sensor_value('GPU Temperature')
 
         return load, (used_mem / total_mem * 100.0), used_mem, temp
 
     @classmethod
     def fps(cls) -> int:
-        return get_sensor_value('Framerate (Displayed)')
+        framerate = get_sensor_value('Framerate (Displayed)')       
+        if math.isnan(framerate):
+            framerate = -1
+        return framerate
 
     @classmethod
     def is_available(cls) -> bool:      
@@ -200,6 +213,9 @@ class Memory(sensors.Memory):
         swap_available = virtual_mem_available - mem_available
         swap_total = swap_used + swap_available
 
+        if swap_total == 0:
+            return 0
+            
         return swap_used / swap_total * 100.0
 
     @staticmethod
